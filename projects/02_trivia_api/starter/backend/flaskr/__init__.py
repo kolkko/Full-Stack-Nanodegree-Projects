@@ -12,21 +12,28 @@ def create_app(test_config=None):
   # create and configure the app
   app = Flask(__name__)
   setup_db(app)
-  
+
   '''
   @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
   '''
+  CORS(app, resources={r"*": {origins:'*'}})
 
   '''
   @TODO: Use the after_request decorator to set Access-Control-Allow
   '''
+  @app.after_request
+  def after_request(response):
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,POST,PATCH,DELETE,OPTIONS')
+    return response
 
-  '''
-  @TODO: 
-  Create an endpoint to handle GET requests 
-  for all available categories.
-  '''
-
+  def paginate_questions(request, selection):
+    page = request.args.get('page', 1, type=int)
+    start = (page - 1) * QUESTIONS_PER_PAGE
+    end = start * QUESTIONS_PER_PAGE
+    questions = [question.format() for question in selection]
+    current_questions = questions[start:end]
+    return current_questions
 
   '''
   @TODO: 
@@ -40,7 +47,40 @@ def create_app(test_config=None):
   ten questions per page and pagination at the bottom of the screen for three pages.
   Clicking on the page numbers should update the questions. 
   '''
+  @app.route('/questions')
+  def get_questions():
+    selection = Question.query.order_by(Question.id).all()
+    paginated_questions = paginate_questions(request, selection)
+    if len(paginated_questions) == 0:
+      abort(404)
+    categories = Category.query.all()
+    categories_all = [category.format() for category in categories]
+    categories_returned = []
+    for cat in categories_all:
+      categories_returned.append(cat['type'])
 
+    return jsonify({'success': True,
+                   'questions': paginated_questions,
+                   'total_questions': len(selection),
+                   'categories': categories_returned,
+                   'current_category': 'TBC'})
+
+    # '''
+  # @TODO: 
+  # Create an endpoint to handle GET requests 
+  # for all available categories.
+  # '''
+
+  # @app.route('/categories', methods=['GET'])
+  # def get_categories():
+  #   selection = Category.query.order_by(Category.id).all()
+  #   if not categories:
+  #     abort(404)
+  #   return jsonify({
+  #     'success': True,
+  #     'categories': selection
+  #                  })
+  
   '''
   @TODO: 
   Create an endpoint to DELETE question using a question ID. 
