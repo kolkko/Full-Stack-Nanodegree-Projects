@@ -16,7 +16,7 @@ def create_app(test_config=None):
   '''
   @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
   '''
-  CORS(app, resources={r"*": {origins:'*'}})
+  CORS(app, resources={r"*": {'origins':'*'}})
 
   '''
   @TODO: Use the after_request decorator to set Access-Control-Allow
@@ -30,7 +30,7 @@ def create_app(test_config=None):
   def paginate_questions(request, selection):
     page = request.args.get('page', 1, type=int)
     start = (page - 1) * QUESTIONS_PER_PAGE
-    end = start * QUESTIONS_PER_PAGE
+    end = start + QUESTIONS_PER_PAGE
     questions = [question.format() for question in selection]
     current_questions = questions[start:end]
     return current_questions
@@ -47,23 +47,25 @@ def create_app(test_config=None):
   ten questions per page and pagination at the bottom of the screen for three pages.
   Clicking on the page numbers should update the questions. 
   '''
-  @app.route('/questions')
+  @app.route('/questions', methods=['GET'])
   def get_questions():
+    # GET all questions and paginate, abort if no questions
     selection = Question.query.order_by(Question.id).all()
     paginated_questions = paginate_questions(request, selection)
     if len(paginated_questions) == 0:
       abort(404)
-    categories = Category.query.all()
-    categories_all = [category.format() for category in categories]
-    categories_returned = []
-    for cat in categories_all:
-      categories_returned.append(cat['type'])
 
-    return jsonify({'success': True,
-                   'questions': paginated_questions,
-                   'total_questions': len(selection),
-                   'categories': categories_returned,
-                   'current_category': 'TBC'})
+    # GET all categories and format into a list of dicts
+    category_query = Category.query.all()
+    all_categories = [cat.format() for cat in category_query]
+
+    return jsonify({
+      'success': True,
+      'questions': paginated_questions,
+      'total_questions': len(selection),
+      'categories': all_categories,
+      'current_category': 'TBC'
+      })
 
     # '''
   # @TODO: 
@@ -138,7 +140,18 @@ def create_app(test_config=None):
   Create error handlers for all expected errors 
   including 404 and 422. 
   '''
-  
+#----------------------------------------------------------------------------#
+# API error handlers
+#----------------------------------------------------------------------------#
+
+  @app.errorhandler(404)
+  def resource_not_found(error):
+    return jsonify({
+      "success": False,
+      "error": (404),
+      "message": "resource not found"
+    }), 404
+
   return app
 
     
