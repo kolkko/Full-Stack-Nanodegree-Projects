@@ -33,21 +33,9 @@ class TriviaTestCase(unittest.TestCase):
     TODO
     Write at least one test for each test for successful operation and for expected errors.
     """
-#----------------------------------------------------------------------------#
-# Test: End point doesn't exist
-#----------------------------------------------------------------------------#
-    # def test_endpoint_not_existant(self):
-    #     """Try to get an endpoint that doesn't exist"""
-    #     res = self.client().get('/nothing_to_see_here')
-    #     data = json.loads(res.data)
-
-    #     self.assertEqual(res.status_code, 404)
-    #     self.assertEqual(data['error'], 404)
-    #     self.assertEqual(data['success'], False)
-    #     self.assertEqual(data['message'], 'resource not found')
 
 #----------------------------------------------------------------------------#
-# Test: /questions GET (405 not working)
+# Test: /questions GET (success & error)
 #----------------------------------------------------------------------------#
 
     def test_get_questions(self):
@@ -61,15 +49,25 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data['categories'])
         self.assertTrue(data['current_category'])
 
-    # def test_error_405_get_questions(self):
-    #     """Test incorrect method to get all questions"""
-    #     res = self.client().patch('/questions')
-    #     data = json.loads(res.data)
+    def test_get_questions_paginated(self):
+        res = self.client().get('/questions?page=1')
+        data = json.loads(res.data)
 
-    #     self.assertEqual(res.status_code, 405)
-    #     self.assertEqual(data['error'], 405)
-    #     self.assertEqual(data['message'], "method not allowed")
-    #     self.assertEqual(data['success'], False)
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(data['questions'])
+        self.assertTrue(data['total_questions'])
+        self.assertTrue(data['categories'])
+        self.assertTrue(data['current_category'])
+
+    def test_error_404_get_questions(self):
+        """Test out of scope page"""
+        res = self.client().get('/questions?page=1000')
+        print('TESTING')
+        data = json.loads(res.data)
+        print('DATA: ', data)
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(data['success'], False)
 
 #----------------------------------------------------------------------------#
 # Test: /questions POST (success & error)
@@ -138,7 +136,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], False)
 
 #----------------------------------------------------------------------------#
-# Test: /questions SEARCH
+# Test: /questions SEARCH (success & error)
 #----------------------------------------------------------------------------#
 
     def test_search_questions(self):
@@ -154,8 +152,15 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], True),
         self.assertTrue(data['questions'])
 
+    def test_error_400_search_questions(self):
+        res = self.client().post('/questions/search')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(data['success'], False)
+
 #----------------------------------------------------------------------------#
-# Test: /categories GET (405 not working)
+# Test: /categories GET (success & error)
 #----------------------------------------------------------------------------#
 
     def test_get_categories(self):
@@ -166,13 +171,13 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], True)
         self.assertTrue(data['categories'])
 
-    # def test_error_405_get_categories(self):
-    #     """Test using wrong method to get categories"""
-    #     res = self.client().patch('/categories')
-    #     data = json.loads(res.data)
+    def test_error_405_get_categories(self):
+        """Test using wrong method"""
+        res = self.client().patch('/categories')
+        data = json.loads(res.data)
 
-    #     self.assertEqual(res.status_code, 405)
-    #     self.assertEqual(data['success'], False)
+        self.assertEqual(res.status_code, 405)
+        self.assertEqual(data['success'], False)
 
 #----------------------------------------------------------------------------#
 # Test: /questions/<int:category_id> GET (success & error)

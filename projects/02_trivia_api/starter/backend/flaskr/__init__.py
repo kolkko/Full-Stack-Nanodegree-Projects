@@ -16,7 +16,7 @@ def create_app(test_config=None):
   '''
   @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
   '''
-  CORS(app, resources={r"*": {'origins':'*'}})
+  CORS(app, resources={r"/api/": {'origins':'*'}})
 
   '''
   @TODO: Use the after_request decorator to set Access-Control-Allow
@@ -29,10 +29,15 @@ def create_app(test_config=None):
 
   def paginate_questions(request, selection):
     page = request.args.get('page', 1, type=int)
+    print("PAGE", page)
     start = (page - 1) * QUESTIONS_PER_PAGE
+    print("START", start)
     end = start + QUESTIONS_PER_PAGE
+    print("END", end)
     questions = [question.format() for question in selection]
     current_questions = questions[start:end]
+    if (len(current_questions) == 0):
+      abort(404)
     return current_questions
 
   '''
@@ -79,6 +84,8 @@ def create_app(test_config=None):
 
   @app.route('/categories', methods=['GET'])
   def get_categories():
+    if(request.method != 'GET'):
+      abort(405)
     selection = Category.query.order_by(Category.id).all()
     if not selection:
       abort(404)
@@ -238,42 +245,42 @@ def create_app(test_config=None):
 
     # if no questions...
     if not previous_questions:
-      print("not previous_questions")
+      #print("not previous_questions")
       # then either select questions from category...
       if current_category:
-        print("current_category")
+        #print("current_category")
         quiz_questions = (Question.query
           .filter(Question.category == str(current_category['id']))
           .all())
         if not quiz_questions:
-          print("not quiz_questions")
+          #print("not quiz_questions")
           quiz_questions = Question.query.all()
       # or just select all questions
       else:
-        print("else select all")
+        #print("else select all")
         quiz_questions = Question.query.all()
 
     # if previous questions, exclude them from selection
     else:
       #if previous questions and a category
       if current_category:
-        print("previous questions and current category")
+        #print("previous questions and current category")
         quiz_questions = (Question.query
           .filter(Question.category == str(current_category['id']))
           .filter(Question.id.notin_(previous_questions))
           .all())
       #if previous questions, but no category
       if not quiz_questions:
-        print("previous questions and no category")
+        #print("previous questions and no category")
         quiz_questions = (Question.query
           .filter(Question.id.notin_(previous_questions))
           .all())
 
-    print(quiz_questions)
+    #print(quiz_questions)
     quiz_questions_formatted = [question.format() for question in quiz_questions]
     #print(quiz_questions_formatted)
     question_number = random.randint(0, (len(quiz_questions_formatted)-1))
-    print(question_number)
+    #print(question_number)
     quiz_question_rand = quiz_questions_formatted[question_number]
     
     return jsonify({
@@ -292,37 +299,33 @@ def create_app(test_config=None):
   @app.errorhandler(400)
   def bad_request(error):
     return jsonify({
-      "success": False,
-      "error": (400),
+      'success': False,
+      'error': 400,
       "message": "bad request"
     }), 400
-
-  return app
   
   @app.errorhandler(404)
   def resource_not_found(error):
     return jsonify({
-      "success": False,
-      "error": (404),
-      "message": "resource not found"
+      'success': False,
+      'error': 404,
+      'message': 'resource not found'
     }), 404
-
-  return app
 
   @app.errorhandler(405)
   def method_not_allowed(error):
     return jsonify({
-      "success": False,
-      "error": (405),
-      "message": "method not allowed"
+      'success': False,
+      'error': 405,
+      'message': 'method not allowed'
     }), 405
 
   @app.errorhandler(422)
   def unprocessable_entity(error):
     return jsonify({
-      "success": False,
-      "error": (422),
-      "message": "unprocessable entity"
+      'success': False,
+      'error': 422,
+      'message': 'unprocessable entity'
     }), 422
 
     
