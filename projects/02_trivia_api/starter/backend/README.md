@@ -105,12 +105,14 @@ Here you can find information on all endpoints, which methods can be used with t
     3. **string** `category` (<span style="color:red">*</span>required)
     4. **integer** `difficulty` (<span style="color:red">*</span>required)
 - Returns: An object containing the id of the new question and the new set of paginated questions.
+    ```
     {
         'success': True,
         'qid': new_trivia.id,
         'questions': paginated_questions,
         'total_questions': len(selection)
     }
+    ```
 - Errors: If you try to insert a question without all the correct fields, a 400 error will occur.
 
 ### 3. DELETE /questions/<int:question_id>  
@@ -118,10 +120,10 @@ Here you can find information on all endpoints, which methods can be used with t
 - Request arguments:
    - **integer** `question_id`
 - Returns: id of deleted question
-    {
+    `{
         'success': True,
         'deleted': question_id
-    }
+    }`
 - Errors: If you try to delete a question with an invalid id, a 400 error will occur.
 
 ### 4. POST /questions/search 
