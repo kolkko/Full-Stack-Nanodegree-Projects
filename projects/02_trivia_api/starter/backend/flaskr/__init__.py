@@ -184,7 +184,7 @@ def create_app(test_config=None):
     if not search_term:
       abort(400)
     try:
-      search_results = Question.query.filter(Question.question.contains(search_term)).all()
+      search_results = Question.query.filter(Question.question.ilike('%{}%'.format(search_term))).all()
       paginated_questions = paginate_questions(request, search_results)
       return jsonify({
         'success': True,

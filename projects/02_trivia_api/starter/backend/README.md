@@ -143,7 +143,7 @@ Here you can find information on all endpoints, which methods can be used with t
 - Errors: If you try to delete a question with an invalid id, a 400 error will occur.
 
 ### 4. POST /questions/search 
-- Searches for a given string within the database. Case sensitive.
+- Searches for a given string within the database. The search is not case sensitive.
 - Request arguments:
     **string** `searchTerm` (<span style="color:red">*</span>required)
 - Returns: List of dictionaries, each dict being a question which matches the given search term.
