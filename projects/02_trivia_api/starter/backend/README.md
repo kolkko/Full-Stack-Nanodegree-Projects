@@ -84,10 +84,23 @@ Here you can find information on all endpoints, which methods can be used with t
 
 ### Endpoint details
 
+## 0. Formatting for questions
+- Individual questions are formatted as per this example
+    ```
+    {
+        'id': 2,
+        'question': 'What movie earned Tom Hanks his third straight Oscar nomination, in 1996?',
+        'answer': 'Apollo 13',
+        'category': 5,
+        'difficulty': 4
+    }
+    ```
+
 ### 1. GET /questions
 - Fetches a list of dictionaries, each dictionary being a question.
 - Request arguments: None
 - Returns: An object of the following format. Questions are found in paginated_questions and a list of categories in category_names
+    ```
     {
         'success': True,
         'questions': paginated_questions,
@@ -95,6 +108,7 @@ Here you can find information on all endpoints, which methods can be used with t
         'categories': category_names,
         'current_category': category_names
     }
+    ```
 - Error: If an out of range page is requested, a 404 error will occur.
 
 ### 2. POST /questions
@@ -120,10 +134,12 @@ Here you can find information on all endpoints, which methods can be used with t
 - Request arguments:
    - **integer** `question_id`
 - Returns: id of deleted question
-    `{
+    ```
+    {
         'success': True,
         'deleted': question_id
-    }`
+    }
+    ```
 - Errors: If you try to delete a question with an invalid id, a 400 error will occur.
 
 ### 4. POST /questions/search 
@@ -131,28 +147,33 @@ Here you can find information on all endpoints, which methods can be used with t
 - Request arguments:
     **string** `searchTerm` (<span style="color:red">*</span>required)
 - Returns: List of dictionaries, each dict being a question which matches the given search term.
+    ```
     {
         'success': True,
         'questions': paginated_questions,
         'total_questions': len(search_results),
         'current_category': 'TBC'
     }
+    ```
 - Errors: If you try to search without a search term, a 400 error will occur.
 
 ### 5. GET /categories  
 - Fetches a list of all `categories`
 - Request Arguments: None
 - Returns: A list of all categories with category `type` as the values
+    ```
     {
         'success': True,
         'categories': {category.id: category.type for category in selection}
     }
+    ```
 - Errors: If any methor other than 'GET' is sent to /categories, a 405 error will occur. 
         
 ### 6. GET /categories/<int:category_id>/questions
 - Get all questions from a specific category
 - Request arguments: **integer** `category_id` 
 - Returns: List of paginated questions, each belonging to the requested category
+    ```
     {
         'success': True,
         'questions': paginated_questions,
@@ -160,50 +181,61 @@ Here you can find information on all endpoints, which methods can be used with t
         'categories': all_categories,
         'current_category': 'TBC'
     }
+    ```
 - Errors: If you request questions for an invalid category id, a 400 error will occur.
 
 ### 7. POST /quizzes
-- Provides questions, so that the quiz can be played, based on chosed categories and prevously asked questions.
+- Provides questions, so that the quiz can be played, based on chosen categories and prevously asked questions. Each quiz is 5 questions long, if a category with fewer that 5 questions is selected, questions from any other category will be added to make up the remaining questions.
 - Request arguments:
      1. **list** `previous_questions` (empty at start of quiz)
      2. **dict** `quiz_category` (optional) with keys:
         1.  **string** type
         2. **integer** id from category
 - Returns: One question as a dictionary, selected at random from all the questions matching the given criteria.
+    ```
     {
         'success': True,
         'question': quiz_question_rand
-      }
+    }
+    ```
 - Errors: If you try to send the request without accompanying json, a 400 error will occur.
 
 ## Errors
 -   400
+    ```
     {
-      'success': False,
-      'error': 400,
-      "message": "bad request"
+        'success': False,
+        'error': 400,
+        "message": "bad request"
     }
+    ```
   
 -   404
+    ```
     {
-      'success': False,
-      'error': 404,
-      'message': 'resource not found'
+        'success': False,
+        'error': 404,
+        'message': 'resource not found'
     }
+    ```
 
 -   405
+    ```
     {
-      'success': False,
-      'error': 405,
-      'message': 'method not allowed'
+        'success': False,
+        'error': 405,
+        'message': 'method not allowed'
     }
+    ```
 
 -   422
+    ```
     {
-      'success': False,
-      'error': 422,
-      'message': 'unprocessable entity'
+        'success': False,
+        'error': 422,
+        'message': 'unprocessable entity'
     }
+    ```
 
 ## Testing
 To run the tests, run
